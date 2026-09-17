@@ -3,7 +3,9 @@ A box stack and a hair cap that draw the engine's froxel order-independent trans
 The engine is `4-entities/godot-oit` (`V-Sekai-fire/entities-godot` at
 `feat/oit-avboit`), which patches adaptive volumetric boundary OIT
 (Drobot, [SIGGRAPH 2025](https://advances.realtimerendering.com/s2025/content/AVBOIT_SIG2025_MDROBOT-final.pdf))
-into the Mobile and Forward+ renderers. This project is its design, its picture and its
+into the Mobile and Forward+ renderers. The patch exists so a CAD view can
+turn parts transparent and stay correct from every angle (RFD 2254); the hair
+cap is a stress fixture, not a deliverable. This project is its design, its picture and its
 gate: the Lean 4 specification the engine's C++ is held to, and two
 scenes captured with the technique on and off. `scenes/stack.tscn` is
 three half-alpha boxes overlapping in depth; `scenes/hair.tscn` is a cap
