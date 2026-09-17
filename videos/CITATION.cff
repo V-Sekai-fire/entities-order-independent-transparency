@@ -1,0 +1,38 @@
+cff-version: 1.2.0
+message: "If you use these recordings, please cite them as below."
+type: dataset
+title: "Order-independent transparency recordings"
+authors:
+  - name: "weft"
+license: "Apache-2.0 OR MIT"
+abstract: >-
+  Four 8-second recordings, 480 frames at 60 fps and 1280x720, of the stack
+  and hair scenes in this project, each in four phases of 120 frames: OIT on
+  sorted, sorted blending sorted, sorted blending scrambled, OIT on scrambled,
+  while the scene turns with a period of two phases. stack.mkv and hair.mkv are
+  the deliverables; stack_plant.mkv and hair_plant.mkv are the planted controls
+  whose scramble never happened, and videos/check_video.gd must reject them.
+  Rendered by videos/record.gd through Godot's Movie Maker (--fixed-fps 60),
+  encoded by the engine's CineForm module at quality HIGH, RGB 4:4:4 with no
+  alpha, in a Matroska container written by libwebm. The files are not
+  tracked; videos/run.sh regenerates and checks them.
+references:
+  - type: software
+    title: "GoPro CineForm SDK"
+    url: "https://github.com/gopro/cineform-sdk"
+    license: "Apache-2.0 OR MIT"
+  - type: software
+    title: "libwebm"
+    url: "https://chromium.googlesource.com/webm/libwebm"
+    license: BSD-3-Clause
+  - type: software
+    title: "sse2neon"
+    url: "https://github.com/DLTcollab/sse2neon"
+    version: "1.8.0"
+    license: MIT
+  - type: software
+    title: "entities-godot"
+    authors:
+      - name: "weft"
+    url: "https://github.com/V-Sekai-fire/entities-godot"
+    license: MIT

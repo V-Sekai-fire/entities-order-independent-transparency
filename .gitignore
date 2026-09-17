@@ -1,5 +1,6 @@
 .godot/
 *.import
 .DS_Store
-checks/*.log
+
 checks/out/
+videos/out/

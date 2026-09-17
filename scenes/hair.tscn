@@ -1,0 +1,49 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scenes/hair_strands.gd" id="Strands"]
+
+[sub_resource type="StandardMaterial3D" id="MatHair"]
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+vertex_color_use_as_albedo = true
+albedo_color = Color(1, 1, 1, 0.6)
+
+[sub_resource type="StandardMaterial3D" id="MatScalp"]
+albedo_color = Color(0.36, 0.26, 0.2, 1)
+
+[sub_resource type="SphereMesh" id="Scalp"]
+material = SubResource("MatScalp")
+radius = 0.1
+height = 0.2
+
+[sub_resource type="ProceduralSkyMaterial" id="Sky"]
+sky_horizon_color = Color(0.08, 0.1, 0.13, 1)
+ground_horizon_color = Color(0.08, 0.1, 0.13, 1)
+
+[sub_resource type="Sky" id="SkyRes"]
+sky_material = SubResource("Sky")
+
+[sub_resource type="Environment" id="Env"]
+background_mode = 2
+sky = SubResource("SkyRes")
+ambient_light_source = 3
+
+[node name="Root" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Env")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.7, -0.5, 0.5, 0, 0.7, 0.7, -0.7, -0.5, 0.5, 0, 3, 0)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.98, 0.2, 0, -0.2, 0.98, 0, -0.03, 0.5)
+current = true
+
+[node name="Scalp" type="MeshInstance3D" parent="."]
+mesh = SubResource("Scalp")
+
+[node name="Hair" type="MeshInstance3D" parent="."]
+material_override = SubResource("MatHair")
+script = ExtResource("Strands")

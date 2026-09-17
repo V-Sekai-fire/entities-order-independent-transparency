@@ -1,6 +1,4 @@
-[gd_scene load_steps=9 format=3]
-
-[ext_resource type="Script" path="res://checks/check_order.gd" id="Cap"]
+[gd_scene load_steps=8 format=3]
 
 [sub_resource type="StandardMaterial3D" id="MatR"]
 transparency = 1
@@ -39,7 +37,6 @@ sky = SubResource("SkyRes")
 ambient_light_source = 3
 
 [node name="Root" type="Node3D"]
-script = ExtResource("Cap")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Env")

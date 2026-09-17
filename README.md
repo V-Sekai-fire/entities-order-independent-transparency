@@ -1,17 +1,21 @@
-A three-box stack that draws the engine's froxel order-independent transparency and checks it against sorted blending.
+A box stack and a hair cap that draw the engine's froxel order-independent transparency and check it against sorted blending.
 
 The engine is `4-entities/godot-oit` (`V-Sekai-fire/entities-godot` at
 `feat/oit-avboit`), which patches adaptive volumetric boundary OIT
 (Drobot, [SIGGRAPH 2025](https://advances.realtimerendering.com/s2025/content/AVBOIT_SIG2025_MDROBOT-final.pdf))
 into the Mobile renderer. This project is its design, its picture and its
-gate: the Lean 4 specification the engine's C++ is held to, and three
-half-alpha boxes overlapping in depth, captured with the technique on and off.
+gate: the Lean 4 specification the engine's C++ is held to, and two
+scenes captured with the technique on and off. `scenes/stack.tscn` is
+three half-alpha boxes overlapping in depth; `scenes/hair.tscn` is a cap
+of 600 half-alpha strands, 12 segments each, built by
+`scenes/hair_strands.gd` and sorted against the camera every frame.
 
 ## Run and check
 
 ```sh
-<godot> --path .                            # the stack, OIT on
-checks/run.sh <godot>                       # the order check and its planted control
+<godot> --path .                            # the hair, OIT on
+checks/run.sh <godot>                       # the check matrix and its controls
+videos/run.sh <godot>                       # the recordings and their playback check
 cd lean && lake build Oit                   # the specification and its controls
 ```
 
@@ -20,12 +24,29 @@ OIT on and off, and compares whole images:
 
 - parity: OIT on matches sorted blending except in a silhouette band no
   wider than a froxel tile, counted against a bound;
-- scramble: giving the front box a lower render priority visibly breaks
-  sorted blending;
+- scramble: giving the front box a lower render priority, or reversing
+  the strand segments to front-to-back, visibly breaks sorted blending;
 - order: the same scramble leaves the OIT image unchanged.
 
-`--plant` skips the scramble while claiming it, and the check must fail.
-The check draws to a window, so it does not run headless.
+`checks/run.sh` runs each scene mono, under 4x MSAA, and in stereo
+through the built-in mobile VR interface (`--stereo`, both eyes compared),
+with the mono run as the baseline for the others. `--plant` skips the
+scramble while claiming it, and `--occlude` stops the render loop as an
+occluded macOS window does; both controls must fail. The check draws to a
+window, so it does not run headless.
+
+`videos/record.gd` records 480 frames at 1280x720 through the engine's
+Movie Maker into CineForm Matroska, four phases of 120 frames (OIT on
+sorted, sorted blending sorted, sorted blending scrambled, OIT on
+scrambled) while the scene turns with a period of two phases.
+`videos/check_video.gd` plays the file back through the engine's decoder
+and pairs frames by pose: sorted blending against OIT scrambled must
+agree within the silhouette band, and OIT sorted against scrambled
+blending must differ by more than the planted recording does.
+`videos/CITATION.cff` names the recordings.
+
+`addons/vsekai_godot_mcp` is a runtime bridge for driving a running
+instance from outside; it is an autoload and takes no part in the checks.
 
 ## The engine patch
 
@@ -33,8 +54,10 @@ Enable `rendering/oit/enabled`; the other keys under `rendering/oit/`
 are documented in the engine's `ProjectSettings` reference. The technique
 hooks the Mobile transparent pass directly, with no per-camera opt-in and
 no compositor effect. Forward+ and the Compatibility renderer ignore the
-setting; with MSAA the Mobile renderer warns once and draws transparents
-sorted.
+setting. Under MSAA the opaque pass resolves depth and transparents
+accumulate at one sample against it, so their silhouettes lose MSAA while
+opaque edges keep it; `checks/run.sh` measures that band against the mono
+one. Stereo needs `xr/shaders/enabled`.
 
 Following slide 47 of the paper, each frame: clear the extinction grid,
 rasterise the Mix-blended transparents into it at tile resolution

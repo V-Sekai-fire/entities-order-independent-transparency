@@ -7,8 +7,12 @@ config_version=5
 [application]
 
 config/name="Order-Independent Transparency"
-run/main_scene="res://scenes/stack.tscn"
+run/main_scene="res://scenes/hair.tscn"
 config/features=PackedStringArray("4.5")
+
+[autoload]
+
+MCPRuntime="*res://addons/vsekai_godot_mcp/mcp_runtime.gd"
 
 [display]
 
@@ -19,3 +23,7 @@ window/size/viewport_height=500
 
 renderer/rendering_method="mobile"
 oit/enabled=true
+
+[xr]
+
+shaders/enabled=true

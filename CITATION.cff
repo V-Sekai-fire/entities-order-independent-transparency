@@ -6,10 +6,12 @@ authors:
   - name: "weft"
 license: "Apache-2.0 OR MIT"
 abstract: >-
-  A Godot project that draws three overlapping half-alpha boxes through the
-  froxel order-independent transparency in V-Sekai-fire/entities-godot at
-  feat/oit-avboit and checks the image against sorted blending, sorted and
-  scrambled, with a planted control.
+  A Godot project that draws three overlapping half-alpha boxes and a cap of
+  half-alpha hair strands through the froxel order-independent transparency
+  in V-Sekai-fire/entities-godot at feat/oit-avboit and checks the image
+  against sorted blending, sorted and scrambled, mono, under MSAA and in
+  stereo, with planted controls. It records both scenes to CineForm Matroska
+  through the engine's Movie Maker and checks the playback the same way.
 references:
   - type: conference-paper
     title: "Adaptive Volumetric Boundary Order-Independent Transparency"
