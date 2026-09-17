@@ -73,9 +73,18 @@ func _configure() -> bool:
 		if xr == null or not xr.initialize():
 			print("FAIL the built-in mobile VR interface did not initialise")
 			return false
-		# The interface views from the world origin at eye height, so the origin takes the camera's place.
+		# The view projections come from the interface through an XR camera, which the interface
+		# places at eye height above the origin, so the origin takes the scene camera's place.
 		xr.eye_height = 0.0
-		XRServer.world_origin = get_viewport().get_camera_3d().global_transform
+		var scene_camera := get_viewport().get_camera_3d()
+		var origin := XROrigin3D.new()
+		origin.transform = scene_camera.global_transform
+		add_child(origin)
+		var camera := XRCamera3D.new()
+		camera.near = scene_camera.near
+		camera.far = scene_camera.far
+		origin.add_child(camera)
+		camera.current = true
 		get_viewport().use_xr = true
 	get_window().always_on_top = true
 	if occlude:
