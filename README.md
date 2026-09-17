@@ -89,5 +89,8 @@ needed, and 128 slices of one `uint` at 320x180 is about 28 MiB.
 layout, the splat, the lookup, the prefix sum, the weighted resolve and
 the stereo packing as Lean 4 definitions with `native_decide` examples,
 each paired with the control that a wrong version fails. `test_oit.cpp`
-carries the same tables against `oit_math.h`, so a drift between the two
-fails one command on either side.
+carries the same tables against `oit_math.h`, and `Oit/Tables.lean`
+folds an FNV-1a hash over 4096 generated rows of the slice curve, the
+extinction packing and the stereo lookup that both sides pin to one
+literal, so a drift between the two fails one command on either side.
+`.github/workflows/lean.yml` builds the library on every push.

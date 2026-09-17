@@ -8,6 +8,7 @@ import Oit.Splat
 import Oit.Lookup
 import Oit.Resolve
 import Oit.Views
+import Oit.Tables
 import Oit.Voxelize
 import Oit.Integrate
 
