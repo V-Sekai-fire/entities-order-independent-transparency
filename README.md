@@ -3,7 +3,7 @@ A box stack and a hair cap that draw the engine's froxel order-independent trans
 The engine is `4-entities/godot-oit` (`V-Sekai-fire/entities-godot` at
 `feat/oit-avboit`), which patches adaptive volumetric boundary OIT
 (Drobot, [SIGGRAPH 2025](https://advances.realtimerendering.com/s2025/content/AVBOIT_SIG2025_MDROBOT-final.pdf))
-into the Mobile renderer. This project is its design, its picture and its
+into the Mobile and Forward+ renderers. This project is its design, its picture and its
 gate: the Lean 4 specification the engine's C++ is held to, and two
 scenes captured with the technique on and off. `scenes/stack.tscn` is
 three half-alpha boxes overlapping in depth; `scenes/hair.tscn` is a cap
@@ -30,7 +30,9 @@ OIT on and off, and compares whole images:
 
 `checks/run.sh` runs each scene mono, under 4x MSAA, and in stereo
 through the built-in mobile VR interface (`--stereo`, both eyes compared),
-with the mono run as the baseline for the others. `--plant` skips the
+with the mono run as the baseline for the others, on the Mobile renderer
+and again on Forward+ (`--rendering-method`, rows prefixed
+`forward_plus_`). `--plant` skips the
 scramble while claiming it, and `--occlude` stops the render loop as an
 occluded macOS window does; both controls must fail. The check draws to a
 window, so it does not run headless.
@@ -52,12 +54,17 @@ instance from outside; it is an autoload and takes no part in the checks.
 
 Enable `rendering/oit/enabled`; the other keys under `rendering/oit/`
 are documented in the engine's `ProjectSettings` reference. The technique
-hooks the Mobile transparent pass directly, with no per-camera opt-in and
-no compositor effect. Forward+ and the Compatibility renderer ignore the
-setting. Under MSAA the opaque pass resolves depth and transparents
-accumulate at one sample against it, so their silhouettes lose MSAA while
-opaque edges keep it; `checks/run.sh` measures that band against the mono
-one. Stereo needs `xr/shaders/enabled`.
+hooks the Mobile and Forward+ transparent passes directly, with no
+per-camera opt-in and no compositor effect; the Compatibility renderer
+ignores the setting. Under MSAA, Mobile resolves depth in the opaque pass
+and transparents accumulate at one sample against it, so their silhouettes
+lose MSAA while opaque edges keep it. Forward+ resolves depth by compute
+into a storage texture nothing can attach, so there the accumulation keeps
+the sample count and the resolve averages the per-sample results
+(`lean/Oit/Resolve.lean`, `resolveSamples`). `checks/run.sh` measures
+both bands against the mono one, and the stack's MSAA band reads 1701
+pixels on Mobile against 844 on Forward+. Stereo needs
+`xr/shaders/enabled`.
 
 Following slide 47 of the paper, each frame: clear the extinction grid,
 rasterise the Mix-blended transparents into it at tile resolution

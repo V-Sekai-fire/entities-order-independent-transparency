@@ -133,4 +133,52 @@ example :
     near (resolve bg (accumulate (froxelFront 8 #[⟨0.2, 0.5, 3⟩]) #[⟨0.2, 0.5, 3⟩])) 0.6 := by
   native_decide
 
+/-! ## Multisampled accumulation
+
+Under MSAA the accumulation targets carry one `Accum` per sample and
+the resolve draws once per pixel, so it has to fold the samples. What
+the fragment emits is the premultiplied pair `(colour, alpha)` that
+the framebuffer blends as `colour + C_0 * (1 - alpha)`, and the fold
+is the mean of the per-sample pairs. Over a background the samples
+share, that equals the mean of the per-sample resolves, which is what
+a per-sample resolve followed by the hardware's own MSAA average would
+show. -/
+
+/-- The pair a resolve fragment writes: premultiplied colour and alpha. -/
+def resolveOut (a : Accum) : Float32 × Float32 :=
+  let total := Float32.exp (-a.ext)
+  (if a.alpha > 0.0 then a.colour * (1.0 - total) / a.alpha else 0.0, 1.0 - total)
+
+def resolveSamples (background : Float32) (samples : Array Accum) : Float32 :=
+  let n := samples.size.toFloat32
+  let (colour, alpha) := samples.foldl (init := ((0.0 : Float32), (0.0 : Float32))) fun (c, a) s =>
+    let (sc, sa) := resolveOut s
+    (c + sc / n, a + sa / n)
+  colour + background * (1.0 - alpha)
+
+/-- Control: averaging the accumulators and resolving once. `exp` is
+    not linear, so a half-covered pixel comes out darker than the mean
+    of its samples. -/
+def resolveMeanAccum (background : Float32) (samples : Array Accum) : Float32 :=
+  let n := samples.size.toFloat32
+  resolve background (samples.foldl (init := Accum.zero) fun m s =>
+    ⟨m.colour + s.colour / n, m.alpha + s.alpha / n, m.ext + s.ext / n⟩)
+
+/-- Two of four samples covered by the stack, two bare: the pixel is
+    the mean `(0.475 + 0.475 + 1 + 1) / 4`. -/
+def halfCovered : Array Accum :=
+  let a := accumulate (exactFront stack) stack
+  #[a, a, Accum.zero, Accum.zero]
+
+example : near (resolveSamples bg halfCovered) 0.7375 := by native_decide
+
+/-- Fully covered, the fold is the single-sample resolve. -/
+example :
+    let a := accumulate (exactFront stack) stack
+    near (resolveSamples bg #[a, a, a, a]) (resolve bg a) := by native_decide
+
+/-- Control: the averaged accumulators resolve to `0.4 * (1 - √0.125) + √0.125`. -/
+example : near (resolveMeanAccum bg halfCovered) 0.612132 := by native_decide
+example : !near (resolveMeanAccum bg halfCovered) 0.7375 := by native_decide
+
 end Oit.Resolve

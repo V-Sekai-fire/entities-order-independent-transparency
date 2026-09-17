@@ -89,7 +89,7 @@ func _configure() -> bool:
 	get_window().always_on_top = true
 	if occlude:
 		RenderingServer.render_loop_enabled = false
-	print("config: scene=%s msaa=%d stereo=%s" % [scene_name, msaa, stereo])
+	print("config: scene=%s msaa=%d stereo=%s renderer=%s" % [scene_name, msaa, stereo, RenderingServer.get_current_rendering_method()])
 	return true
 
 
