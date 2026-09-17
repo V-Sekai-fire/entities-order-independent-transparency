@@ -1,0 +1,64 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://checks/check_order.gd" id="Cap"]
+
+[sub_resource type="StandardMaterial3D" id="MatR"]
+transparency = 1
+albedo_color = Color(1, 0.2, 0.2, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="MatG"]
+transparency = 1
+albedo_color = Color(0.2, 1, 0.3, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="MatB"]
+transparency = 1
+albedo_color = Color(0.3, 0.4, 1, 0.5)
+
+[sub_resource type="BoxMesh" id="BoxR"]
+material = SubResource("MatR")
+size = Vector3(0.9, 0.9, 0.9)
+
+[sub_resource type="BoxMesh" id="BoxG"]
+material = SubResource("MatG")
+size = Vector3(0.9, 0.9, 0.9)
+
+[sub_resource type="BoxMesh" id="BoxB"]
+material = SubResource("MatB")
+size = Vector3(0.9, 0.9, 0.9)
+
+[sub_resource type="ProceduralSkyMaterial" id="Sky"]
+sky_horizon_color = Color(0.08, 0.1, 0.13, 1)
+ground_horizon_color = Color(0.08, 0.1, 0.13, 1)
+
+[sub_resource type="Sky" id="SkyRes"]
+sky_material = SubResource("Sky")
+
+[sub_resource type="Environment" id="Env"]
+background_mode = 2
+sky = SubResource("SkyRes")
+ambient_light_source = 3
+
+[node name="Root" type="Node3D"]
+script = ExtResource("Cap")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Env")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.7, -0.5, 0.5, 0, 0.7, 0.7, -0.7, -0.5, 0.5, 0, 3, 0)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 3)
+current = true
+
+[node name="Red" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4, 0, 0)
+mesh = SubResource("BoxR")
+
+[node name="Green" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.4)
+mesh = SubResource("BoxG")
+
+[node name="Blue" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4, 0, -0.8)
+mesh = SubResource("BoxB")

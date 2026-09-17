@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use this project or its checks, please cite it as below."
+type: software
+title: "Order-independent transparency stack"
+authors:
+  - name: "weft"
+license: "Apache-2.0 OR MIT"
+abstract: >-
+  A Godot project that draws three overlapping half-alpha boxes through the
+  froxel order-independent transparency in V-Sekai-fire/entities-godot at
+  feat/oit-avboit and checks the image against sorted blending, sorted and
+  scrambled, with a planted control.
+references:
+  - type: conference-paper
+    title: "Adaptive Volumetric Boundary Order-Independent Transparency"
+    authors:
+      - family-names: "Drobot"
+        given-names: "Michał"
+    conference:
+      name: "SIGGRAPH 2025, Advances in Real-Time Rendering in Games"
+    url: "https://advances.realtimerendering.com/s2025/content/AVBOIT_SIG2025_MDROBOT-final.pdf"
+    year: 2025
+  - type: software
+    title: "entities-godot"
+    authors:
+      - name: "weft"
+    url: "https://github.com/V-Sekai-fire/entities-godot"
+    license: MIT
