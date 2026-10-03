@@ -5,11 +5,10 @@
 set -u
 G=${1:?godot binary}
 cd "$(dirname "$0")/.."
-mkdir -p videos/out
 fails=0
 for scene in stack hair; do
 	for plant in "" "--plant"; do
-		out=videos/out/$scene${plant:+_plant}.mkv
+		out=videos/$scene${plant:+_plant}.mkv
 		"$G" --path . --resolution 1280x720 --write-movie "$out" --fixed-fps 60 --quit-after 480 \
 			res://videos/record.tscn -- --scene=$scene $plant 2>&1 | grep -E "ERROR|SCRIPT"
 		echo "== $out"

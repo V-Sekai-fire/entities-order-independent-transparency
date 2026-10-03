@@ -1,7 +1,7 @@
 extends Node3D
 # Records a scene through Movie Maker in four phases, OIT on and off, sorted and scrambled,
 # turning the transparents the whole time so the depth order keeps changing under them.
-#   <godot> --path . --resolution 1280x720 --write-movie videos/out/<name>.mkv --fixed-fps 60 --quit-after 480 res://videos/record.tscn -- --scene=stack|hair [--plant]
+#   <godot> --path . --resolution 1280x720 --write-movie videos/<name>.mkv --fixed-fps 60 --quit-after 480 res://videos/record.tscn -- --scene=stack|hair [--plant]
 # The stack's scramble gives the front box a lower render priority; the hair's reverses the
 # strand segments to front-to-back, re-sorted every frame so "sorted" stays true as it turns.
 # The turn repeats every two phases, so videos/check_video.gd can pair frames by pose.

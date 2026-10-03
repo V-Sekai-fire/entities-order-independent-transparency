@@ -3,4 +3,4 @@
 .DS_Store
 
 checks/out/
-videos/out/
+videos/*.mkv
