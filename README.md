@@ -8,7 +8,7 @@ It is the test stack for the engine patch that lets transparent parts of a compu
 
 ## Build and run
 
-Both commands take the path to an engine build that carries the patch. The first opens the stack; the second runs the order check with its planted controls.
+Both commands take the path to an engine build that carries the patch. The first opens the project at its hair scene; the second runs the order check with its planted controls.
 
 ```sh
 <engine> --path .
