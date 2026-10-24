@@ -4,7 +4,7 @@ An engine project that checks froxel order-independent transparency on overlappi
 
 ## What it is for
 
-It is the test stack for the engine patch that lets transparent parts of a computer-aided design assembly composite correctly in any draw order. RFD 2254 in `manuals-weftspun` owns the patch and the reason for it.
+It is the test stack for the engine patch that lets transparent parts of a computer-aided design assembly composite correctly in any draw order. RFD66606-2254 in `manuals-weftspun` owns the patch and the reason for it.
 
 ## Build and run
 
