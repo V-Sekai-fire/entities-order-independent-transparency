@@ -166,7 +166,7 @@ example : depthToSlice 5.0 5.0 0.5 128 6.0 = 127 := by native_decide
 /-! ## Auto range
 
 `oit_math.h::oit_auto_range`: the slice range for translucent geometry whose view-space depths run from `minZ` to `maxZ`, grown by `margin`, never nearer
-than 1 cm, with the linear curve (`k` at its floor of 0.001), so each slice has the same thickness. `none` when nothing is in front of the camera; the
+than 1 cm, with `k = (far - near) / near`, which turns the curve into `log (z / near) / log (far / near)`: every slice has the same *relative* thickness, `ln (far / near) / sliceCount`. A narrow range (hair) is nearly linear, a wide one (planets) is log depth, so the range works at any scale. `none` when nothing is in front of the camera; the
 renderer then keeps the fixed planes. -/
 
 def autoRange (minZ maxZ margin : Float32) : Option (Float32 × Float32 × Float32) :=
@@ -175,7 +175,9 @@ def autoRange (minZ maxZ margin : Float32) : Option (Float32 × Float32 × Float
     let near := if minZ - margin > 0.01 then minZ - margin else 0.01
     let far0 := maxZ + margin
     let far := if far0 < near + 0.001 then near + 0.001 else far0
-    some (near, far, 0.001)
+    let k0 := (far - near) / near
+    let k := if k0 < 0.001 then 0.001 else if k0 > 1.0e18 then 1.0e18 else k0
+    some (near, far, k)
 
 /-- The range holds the geometry: `near <= minZ` and `far >= maxZ` whenever the margin keeps `near` above 1 cm. -/
 def holds (minZ maxZ margin : Float32) : Bool :=
@@ -209,19 +211,32 @@ def separated (minZ maxZ margin z0 z1 : Float32) (slicesAuto : UInt32) : Bool :=
 example : depthToSlice 0.1 500.0 1000.0 128 2.300 = depthToSlice 0.1 500.0 1000.0 128 2.302 := by native_decide
 example : separated 2.0 2.6 0.02 2.300 2.302 512 = true := by native_decide
 
-/-- Control: with a 20-metre span (a dome in the view) 512 slices are 4 cm thick, and the same two layers merge again. -/
-example : separated 2.0 22.0 0.02 2.300 2.302 512 = false := by native_decide
+/-- Control: with a 10 km span (a far plane in the view) the relative slice thickness is 1.7%, about 4 cm at 2.3 m, and the same two layers merge again. -/
+example : separated 2.0 1.0e4 0.02 2.301 2.303 512 = false := by native_decide
 
-/-- Equal thickness: nine depths from `near` to `far` in eighths land about 64 slices apart. -/
-def evenEighths (minZ maxZ margin : Float32) : Bool :=
+/-- Equal relative thickness: nine depths spaced geometrically from `near` to `far` land about 64 slices apart. -/
+def geometricEighths (minZ maxZ margin : Float32) : Bool :=
   match autoRange minZ maxZ margin with
   | some (n, f, k) =>
     let idx := (Array.range 9).map fun i =>
-      depthToSlice n f k 512 (n + (f - n) * (i.toFloat32 / 8.0))
+      depthToSlice n f k 512 (n * Float32.exp (Float32.log (f / n) * (i.toFloat32 / 8.0)))
     (List.range 8).all fun i => idx[i + 1]! >= idx[i]! + 60 && idx[i + 1]! <= idx[i]! + 68
   | none => false
 
-example : evenEighths 2.0 2.6 0.02 = true := by native_decide
-example : evenEighths 0.5 1.5 0.05 = true := by native_decide
+example : geometricEighths 2.0 2.6 0.02 = true := by native_decide
+example : geometricEighths 0.5 1.5 0.05 = true := by native_decide
+example : geometricEighths 1.0e11 1.5e11 1.0e9 = true := by native_decide
+example : geometricEighths 1.0 4.5e12 0.02 = true := by native_decide
+
+/-- Solar-system scale. Layers 0.8% apart at 1.2e11 m separate in a 1e11 to 1.5e11 m range. Across 1 m to 4.5e12 m the relative thickness is
+    ln (far / near) / 512 = 5.7%, so layers 10% apart still separate and layers 1% apart are at most one slice apart. -/
+example : separated 1.0e11 1.5e11 1.0e9 1.20e11 1.21e11 512 = true := by native_decide
+example : separated 1.0 4.5e12 0.02 1.0e11 1.1e11 512 = true := by native_decide
+example : (match autoRange 1.0 4.5e12 0.02 with
+    | some (n, f, k) => decide (depthToSlice n f k 512 1.01e11 <= depthToSlice n f k 512 1.0e11 + 1)
+    | none => false) = true := by native_decide
+
+/-- Control: the first-version linear curve, `k = 0.001`, over 1 m to 4.5e12 m puts both near-field layers in slice 0. -/
+example : depthToSlice 0.98 4.5e12 0.001 512 2.300 = depthToSlice 0.98 4.5e12 0.001 512 2.302 := by native_decide
 
 end Oit.SliceCurve
