@@ -163,4 +163,65 @@ example : depthToSlice 0.1 500.0 0.0 128 500.0 = 127 := by native_decide
 example : depthToSlice 5.0 5.0 0.5 128 5.0 = 0 := by native_decide
 example : depthToSlice 5.0 5.0 0.5 128 6.0 = 127 := by native_decide
 
+/-! ## Auto range
+
+`oit_math.h::oit_auto_range`: the slice range for translucent geometry whose view-space depths run from `minZ` to `maxZ`, grown by `margin`, never nearer
+than 1 cm, with the linear curve (`k` at its floor of 0.001), so each slice has the same thickness. `none` when nothing is in front of the camera; the
+renderer then keeps the fixed planes. -/
+
+def autoRange (minZ maxZ margin : Float32) : Option (Float32 × Float32 × Float32) :=
+  if !(maxZ > 0.0) || !(maxZ >= minZ) then none
+  else
+    let near := if minZ - margin > 0.01 then minZ - margin else 0.01
+    let far0 := maxZ + margin
+    let far := if far0 < near + 0.001 then near + 0.001 else far0
+    some (near, far, 0.001)
+
+/-- The range holds the geometry: `near <= minZ` and `far >= maxZ` whenever the margin keeps `near` above 1 cm. -/
+def holds (minZ maxZ margin : Float32) : Bool :=
+  match autoRange minZ maxZ margin with
+  | some (n, f, _) => decide (n <= minZ) && decide (f >= maxZ)
+  | none => false
+
+example : holds 2.0 2.6 0.02 = true := by native_decide
+example : holds 0.5 0.9 0.02 = true := by native_decide
+example : holds 10.0 10.01 0.0 = true := by native_decide
+
+/-- Never nearer than 1 cm. -/
+example : (match autoRange 0.005 1.0 0.02 with | some (n, _, _) => n.toBits = (0.01 : Float32).toBits | none => false) = true := by
+  native_decide
+
+/-- Nothing in front of the camera, or bounds the wrong way round: no range. -/
+example : (autoRange (-2.0) (-1.0) 0.02).isNone = true := by native_decide
+example : (autoRange 3.0 2.0 0.02).isNone = true := by native_decide
+
+/-- A flat slab (`minZ = maxZ`) still gets a range at least 1 mm deep. -/
+example : (match autoRange 2.0 2.0 0.0 with | some (n, f, _) => decide (f >= n + 0.001) | none => false) = true := by
+  native_decide
+
+/-- The point of it: two layers 2 mm apart at 2.3 m share a slice under the fixed planes (128 slices, near 0.1, far 500, k 1000) and are
+    separated by the auto range with 512 slices. -/
+def separated (minZ maxZ margin z0 z1 : Float32) (slicesAuto : UInt32) : Bool :=
+  match autoRange minZ maxZ margin with
+  | some (n, f, k) => depthToSlice n f k slicesAuto z0 != depthToSlice n f k slicesAuto z1
+  | none => false
+
+example : depthToSlice 0.1 500.0 1000.0 128 2.300 = depthToSlice 0.1 500.0 1000.0 128 2.302 := by native_decide
+example : separated 2.0 2.6 0.02 2.300 2.302 512 = true := by native_decide
+
+/-- Control: with a 20-metre span (a dome in the view) 512 slices are 4 cm thick, and the same two layers merge again. -/
+example : separated 2.0 22.0 0.02 2.300 2.302 512 = false := by native_decide
+
+/-- Equal thickness: nine depths from `near` to `far` in eighths land about 64 slices apart. -/
+def evenEighths (minZ maxZ margin : Float32) : Bool :=
+  match autoRange minZ maxZ margin with
+  | some (n, f, k) =>
+    let idx := (Array.range 9).map fun i =>
+      depthToSlice n f k 512 (n + (f - n) * (i.toFloat32 / 8.0))
+    (List.range 8).all fun i => idx[i + 1]! >= idx[i]! + 60 && idx[i + 1]! <= idx[i]! + 68
+  | none => false
+
+example : evenEighths 2.0 2.6 0.02 = true := by native_decide
+example : evenEighths 0.5 1.5 0.05 = true := by native_decide
+
 end Oit.SliceCurve
