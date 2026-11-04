@@ -11,6 +11,7 @@ import Oit.Views
 import Oit.Tables
 import Oit.Voxelize
 import Oit.Integrate
+import Oit.TileLookup
 
 /-!
 # Adaptive Volumetric Boundary OIT (Drobot, SIGGRAPH 2025)
