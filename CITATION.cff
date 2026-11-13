@@ -4,6 +4,8 @@ type: software
 title: "Order-independent transparency stack"
 authors:
   - name: "weftspun"
+    alias: "fire"
+    website: "https://github.com/fire"
 license:
   - Apache-2.0
   - MIT
@@ -28,5 +30,7 @@ references:
     title: "entities-godot"
     authors:
       - name: "weftspun"
+        alias: "fire"
+        website: "https://github.com/fire"
     url: "https://github.com/V-Sekai-fire/entities-godot"
     license: MIT
