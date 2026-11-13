@@ -3,7 +3,7 @@ message: "If you use this project or its checks, please cite it as below."
 type: software
 title: "Order-independent transparency stack"
 authors:
-  - name: "weft"
+  - name: "weftspun"
 license:
   - Apache-2.0
   - MIT
@@ -27,6 +27,6 @@ references:
   - type: software
     title: "entities-godot"
     authors:
-      - name: "weft"
+      - name: "weftspun"
     url: "https://github.com/V-Sekai-fire/entities-godot"
     license: MIT
